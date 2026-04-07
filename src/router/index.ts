@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
-import DashboardView from '../views/DashboardView.vue'
+import AdminDashboardView from '../views/AdminDashboardView.vue'
+import EmployeeDashboardView from '../views/EmployeeDashboardView.vue'
 
 const router = createRouter({
   history: createWebHistory(),
@@ -16,11 +17,19 @@ const router = createRouter({
     },
     {
       path: '/dashboard',
-      name: 'dashboard',
-      component: DashboardView,
+      redirect: '/admin/dashboard',
+    },
+    {
+      path: '/admin/dashboard',
+      name: 'admin-dashboard',
+      component: AdminDashboardView,
+    },
+    {
+      path: '/employee/dashboard',
+      name: 'employee-dashboard',
+      component: EmployeeDashboardView,
     },
   ],
 })
 
 export default router
-

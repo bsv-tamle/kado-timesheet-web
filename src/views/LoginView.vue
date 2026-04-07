@@ -62,7 +62,7 @@ async function onSubmit() {
       localStorage.removeItem('kado_user')
     }
 
-    await router.push('/dashboard')
+    await router.push(user.role === 'admin' ? '/admin/dashboard' : '/employee/dashboard')
   } catch (error) {
     if (error instanceof ApiError) {
       loginError.value = error.message || t('app.loginFailed')
@@ -149,7 +149,7 @@ async function onSubmit() {
 
 <style scoped>
 .login-page {
-  background: #f3f4f6;
+  background: linear-gradient(180deg, #edf3ff 0%, #f7f9fd 100%);
 }
 
 .auth-card {
