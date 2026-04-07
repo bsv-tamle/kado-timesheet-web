@@ -2,21 +2,15 @@
 import { useI18n } from 'vue-i18n'
 import AppSidebar from '../components/AppSidebar.vue'
 import AppPageHeader from '../components/AppPageHeader.vue'
+import { EMPLOYEE_NAV_ITEMS } from '../constants/navigation'
 
 const { t } = useI18n()
-
-const employeeNavItems = [
-  { key: 'dashboard', labelKey: 'app.menu.dashboard' },
-  { key: 'timesheet', labelKey: 'app.menu.timesheet' },
-  { key: 'reports', labelKey: 'app.menu.myReports' },
-  { key: 'profile', labelKey: 'app.menu.profile' },
-]
 </script>
 
 <template>
   <v-main class="shell-bg">
     <div class="app-shell">
-      <AppSidebar section-label-key="app.sidebar.employee" :items="employeeNavItems" active-key="dashboard" />
+      <AppSidebar section-label-key="app.sidebar.employee" :items="EMPLOYEE_NAV_ITEMS" active-key="dashboard" />
 
       <main class="main">
         <AppPageHeader

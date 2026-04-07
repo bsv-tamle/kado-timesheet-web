@@ -1,16 +1,12 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-
-interface SidebarItem {
-  key: string
-  labelKey: string
-}
+import type { SidebarNavItem } from '../constants/navigation'
 
 const { t } = useI18n()
 
 defineProps<{
   sectionLabelKey: string
-  items: SidebarItem[]
+  items: SidebarNavItem[]
   activeKey: string
 }>()
 </script>
@@ -24,7 +20,12 @@ defineProps<{
         :key="item.key"
         :class="{ active: item.key === activeKey }"
       >
-        {{ t(item.labelKey) }}
+        <RouterLink v-if="item.to" :to="item.to" class="nav-link">
+          {{ t(item.labelKey) }}
+        </RouterLink>
+        <span v-else class="nav-link disabled">
+          {{ t(item.labelKey) }}
+        </span>
       </li>
     </ul>
   </aside>
@@ -53,16 +54,30 @@ defineProps<{
 }
 
 .nav li {
-  padding: 9px 10px;
   border-radius: 8px;
-  color: rgba(255, 255, 255, 0.9);
   border: 1px solid transparent;
+  overflow: hidden;
 }
 
 .nav li.active {
   background: #fff;
-  color: #2f66c8;
   border-color: rgba(255, 255, 255, 0.8);
   font-weight: 600;
+}
+
+.nav-link {
+  display: block;
+  padding: 9px 10px;
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+}
+
+.nav li.active .nav-link {
+  color: #2f66c8;
+}
+
+.nav-link.disabled {
+  opacity: 0.82;
+  cursor: default;
 }
 </style>

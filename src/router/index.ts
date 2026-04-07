@@ -2,6 +2,11 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '../views/LoginView.vue'
 import AdminDashboardView from '../views/AdminDashboardView.vue'
 import EmployeeDashboardView from '../views/EmployeeDashboardView.vue'
+import AdminProjectListView from '../views/AdminProjectListView.vue'
+import AdminProjectFormView from '../views/AdminProjectFormView.vue'
+import AdminEmployeeListView from '../views/AdminEmployeeListView.vue'
+import AdminEmployeeFormView from '../views/AdminEmployeeFormView.vue'
+import AdminAssignmentView from '../views/AdminAssignmentView.vue'
 import { authService, type UserRole } from '../services/auth.service'
 
 const router = createRouter({
@@ -29,6 +34,48 @@ const router = createRouter({
       path: '/admin/dashboard',
       name: 'admin-dashboard',
       component: AdminDashboardView,
+      meta: { requiresAuth: true, roles: ['admin'] },
+    },
+    {
+      path: '/admin/projects',
+      name: 'admin-project-list',
+      component: AdminProjectListView,
+      meta: { requiresAuth: true, roles: ['admin'] },
+    },
+    {
+      path: '/admin/projects/new',
+      name: 'admin-project-create',
+      component: AdminProjectFormView,
+      meta: { requiresAuth: true, roles: ['admin'] },
+    },
+    {
+      path: '/admin/projects/:id/edit',
+      name: 'admin-project-edit',
+      component: AdminProjectFormView,
+      meta: { requiresAuth: true, roles: ['admin'] },
+    },
+    {
+      path: '/admin/users',
+      name: 'admin-user-list',
+      component: AdminEmployeeListView,
+      meta: { requiresAuth: true, roles: ['admin'] },
+    },
+    {
+      path: '/admin/users/new',
+      name: 'admin-user-create',
+      component: AdminEmployeeFormView,
+      meta: { requiresAuth: true, roles: ['admin'] },
+    },
+    {
+      path: '/admin/users/:id/edit',
+      name: 'admin-user-edit',
+      component: AdminEmployeeFormView,
+      meta: { requiresAuth: true, roles: ['admin'] },
+    },
+    {
+      path: '/admin/assignments',
+      name: 'admin-assignment',
+      component: AdminAssignmentView,
       meta: { requiresAuth: true, roles: ['admin'] },
     },
     {
