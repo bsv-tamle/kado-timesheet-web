@@ -49,20 +49,8 @@ async function onSubmit() {
       return
     }
 
-    const storage = rememberMe.value ? localStorage : sessionStorage
-    storage.setItem('kado_access_token', token)
-    storage.setItem('kado_user', JSON.stringify(user))
-
-    // Clear stale auth in the opposite storage
-    if (rememberMe.value) {
-      sessionStorage.removeItem('kado_access_token')
-      sessionStorage.removeItem('kado_user')
-    } else {
-      localStorage.removeItem('kado_access_token')
-      localStorage.removeItem('kado_user')
-    }
-
-    await router.push(user.role === 'admin' ? '/admin/dashboard' : '/employee/dashboard')
+    authService.saveSession(token, user, rememberMe.value)
+    await router.push(authService.getHomePathByRole(user.role))
   } catch (error) {
     if (error instanceof ApiError) {
       loginError.value = error.message || t('app.loginFailed')

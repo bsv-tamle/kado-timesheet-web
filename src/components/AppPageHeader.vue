@@ -6,7 +6,7 @@ defineProps<{
 </script>
 
 <template>
-  <header class="dashboard-header">
+  <header class="page-header">
     <div class="header-text">
       <div class="page-title">{{ title }}</div>
       <div class="page-subtitle">{{ subtitle }}</div>
@@ -19,7 +19,7 @@ defineProps<{
 </template>
 
 <style scoped>
-.dashboard-header {
+.page-header {
   background: #ffffff;
   color: #111827;
   border-radius: 12px;
@@ -63,3 +63,4 @@ defineProps<{
   border-color: #3a78ea;
 }
 </style>
+

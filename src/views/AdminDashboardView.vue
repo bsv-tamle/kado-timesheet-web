@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
 import AppSidebar from '../components/AppSidebar.vue'
-import DashboardHeader from '../components/DashboardHeader.vue'
+import AppPageHeader from '../components/AppPageHeader.vue'
 
 const { t } = useI18n()
 
@@ -21,7 +21,7 @@ const adminNavItems = [
       <AppSidebar section-label-key="app.sidebar.admin" :items="adminNavItems" active-key="dashboard" />
 
       <main class="main">
-        <DashboardHeader
+        <AppPageHeader
           :title="t('app.adminDashboard.title')"
           :subtitle="t('app.adminDashboard.subtitle')"
         >
@@ -29,7 +29,7 @@ const adminNavItems = [
             <button class="btn">{{ t('app.adminDashboard.monthLabel') }}</button>
             <button class="btn primary">{{ t('app.common.export') }}</button>
           </template>
-        </DashboardHeader>
+        </AppPageHeader>
 
         <div class="grid-4">
           <div class="card"><div class="stat-label">{{ t('app.adminDashboard.activeEmployees') }}</div><div class="stat-value">42</div></div>
