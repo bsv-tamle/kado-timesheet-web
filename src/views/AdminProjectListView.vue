@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed, onMounted, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { useRouter } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import AppPageHeader from '../components/AppPageHeader.vue'
 import AppSidebar from '../components/AppSidebar.vue'
 import { ApiError } from '../api/http-client'
@@ -10,6 +10,7 @@ import { authService } from '../services/auth.service'
 import { projectService, type Project, type ProjectStatus } from '../services/project.service'
 
 const { t } = useI18n()
+const route = useRoute()
 const router = useRouter()
 
 const keyword = ref('')
@@ -22,6 +23,7 @@ const total = ref(0)
 const isLoading = ref(false)
 const isUpdatingStatus = ref<number | null>(null)
 const errorMessage = ref('')
+const successMessage = ref('')
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / perPage.value)))
 
@@ -97,8 +99,11 @@ async function onToggleArchive(project: Project) {
 
   try {
     isUpdatingStatus.value = project.id
+    successMessage.value = ''
     await projectService.updateStatus(session.token, project.id, nextStatus)
     await fetchProjects(page.value)
+    successMessage.value =
+      nextStatus === 'archived' ? t('app.projectList.messages.archived') : t('app.projectList.messages.restored')
   } catch (error) {
     if (error instanceof ApiError) {
       errorMessage.value = error.message
@@ -108,6 +113,22 @@ async function onToggleArchive(project: Project) {
   } finally {
     isUpdatingStatus.value = null
   }
+}
+
+async function resolveNoticeFromQuery() {
+  const notice = typeof route.query.notice === 'string' ? route.query.notice : ''
+
+  if (notice === 'created') {
+    successMessage.value = t('app.projectForm.successCreated')
+  } else if (notice === 'updated') {
+    successMessage.value = t('app.projectForm.successUpdated')
+  } else {
+    return
+  }
+
+  const nextQuery = { ...route.query }
+  delete nextQuery.notice
+  await router.replace({ query: nextQuery })
 }
 
 function statusChipColor(value: ProjectStatus) {
@@ -123,6 +144,7 @@ function statusText(value: ProjectStatus) {
 }
 
 onMounted(() => {
+  resolveNoticeFromQuery()
   fetchProjects()
 })
 </script>
@@ -142,6 +164,9 @@ onMounted(() => {
 
         <v-alert v-if="errorMessage" type="error" variant="tonal" density="comfortable" class="mb-4">
           {{ errorMessage }}
+        </v-alert>
+        <v-alert v-if="successMessage" type="success" variant="tonal" density="comfortable" class="mb-4">
+          {{ successMessage }}
         </v-alert>
 
         <div class="card mb-4">

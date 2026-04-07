@@ -68,10 +68,10 @@ async function onSave() {
 
     if (isEditMode.value) {
       await projectService.update(session.token, projectId.value, payload)
-      await router.push({ name: 'admin-project-list' })
+      await router.push({ name: 'admin-project-list', query: { notice: 'updated' } })
     } else {
       await projectService.create(session.token, payload)
-      await router.push({ name: 'admin-project-list' })
+      await router.push({ name: 'admin-project-list', query: { notice: 'created' } })
     }
   } catch (error) {
     if (error instanceof ApiError) {

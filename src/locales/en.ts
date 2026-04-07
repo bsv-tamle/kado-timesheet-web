@@ -81,6 +81,10 @@ export default {
         loadFailed: 'Failed to load project list.',
         updateStatusFailed: 'Failed to update project status.',
       },
+      messages: {
+        archived: 'Project archived successfully.',
+        restored: 'Project restored successfully.',
+      },
     },
     projectForm: {
       titleCreate: 'Create Project',
@@ -143,6 +147,11 @@ export default {
         updateStatusFailed: 'Failed to update employee status.',
         resetPasswordFailed: 'Failed to reset password.',
       },
+      messages: {
+        passwordReset: 'Password reset successfully.',
+        locked: 'User locked successfully.',
+        unlocked: 'User unlocked successfully.',
+      },
     },
     employeeForm: {
       titleCreate: 'Create Employee',
@@ -151,6 +160,8 @@ export default {
       back: 'Back',
       save: 'Save employee',
       saving: 'Saving...',
+      successCreated: 'Employee created successfully.',
+      successUpdated: 'Employee updated successfully.',
       note: 'Department/position catalogs and avatar upload are not integrated in MVP yet, so IDs are entered manually.',
       fields: {
         fullName: 'Full name',

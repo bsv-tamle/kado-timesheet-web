@@ -81,6 +81,10 @@ export default {
         loadFailed: 'プロジェクト一覧の取得に失敗しました。',
         updateStatusFailed: 'プロジェクトステータスの更新に失敗しました。',
       },
+      messages: {
+        archived: 'プロジェクトをアーカイブしました。',
+        restored: 'プロジェクトを復元しました。',
+      },
     },
     projectForm: {
       titleCreate: 'プロジェクト作成',
@@ -143,6 +147,11 @@ export default {
         updateStatusFailed: '社員ステータスの更新に失敗しました。',
         resetPasswordFailed: 'パスワード再設定に失敗しました。',
       },
+      messages: {
+        passwordReset: 'パスワードを再設定しました。',
+        locked: 'ユーザーをロックしました。',
+        unlocked: 'ユーザーのロックを解除しました。',
+      },
     },
     employeeForm: {
       titleCreate: '社員作成',
@@ -151,6 +160,8 @@ export default {
       back: '戻る',
       save: '社員を保存',
       saving: '保存中...',
+      successCreated: '社員を作成しました。',
+      successUpdated: '社員情報を更新しました。',
       note: 'MVPでは部署・役職マスタとアバターアップロードは未連携のため、ID手入力です。',
       fields: {
         fullName: '氏名',

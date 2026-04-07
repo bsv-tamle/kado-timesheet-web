@@ -81,6 +81,10 @@ export default {
         loadFailed: 'Không tải được danh sách project.',
         updateStatusFailed: 'Cập nhật trạng thái project thất bại.',
       },
+      messages: {
+        archived: 'Đã archive project thành công.',
+        restored: 'Đã khôi phục project thành công.',
+      },
     },
     projectForm: {
       titleCreate: 'Tạo Project',
@@ -143,6 +147,11 @@ export default {
         updateStatusFailed: 'Không cập nhật được trạng thái nhân viên.',
         resetPasswordFailed: 'Không reset được mật khẩu.',
       },
+      messages: {
+        passwordReset: 'Đã đặt lại mật khẩu thành công.',
+        locked: 'Đã khóa tài khoản thành công.',
+        unlocked: 'Đã mở khóa tài khoản thành công.',
+      },
     },
     employeeForm: {
       titleCreate: 'Tạo Nhân viên',
@@ -151,6 +160,8 @@ export default {
       back: 'Quay lại',
       save: 'Lưu nhân viên',
       saving: 'Đang lưu...',
+      successCreated: 'Tạo nhân viên thành công.',
+      successUpdated: 'Cập nhật nhân viên thành công.',
       note: 'MVP chưa tích hợp danh mục phòng ban/chức danh và upload avatar, hiện dùng ID thủ công.',
       fields: {
         fullName: 'Họ và tên',

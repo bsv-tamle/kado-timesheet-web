@@ -110,15 +110,15 @@ async function onSave() {
 
     if (isEditMode.value) {
       await userService.update(session.token, userId.value, payloadBase)
+      await router.push({ name: 'admin-user-list', query: { notice: 'updated' } })
     } else {
       await userService.create(session.token, {
         ...payloadBase,
         role: 'employee',
         send_invitation_email: sendInvitationEmail.value,
       })
+      await router.push({ name: 'admin-user-list', query: { notice: 'created' } })
     }
-
-    await router.push({ name: 'admin-user-list' })
   } catch (error) {
     if (error instanceof ApiError) {
       errorMessage.value = error.message
@@ -327,4 +327,3 @@ onMounted(() => {
   }
 }
 </style>
-
