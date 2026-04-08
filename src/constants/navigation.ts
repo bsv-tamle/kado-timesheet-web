@@ -15,7 +15,7 @@ export const ADMIN_NAV_ITEMS: SidebarNavItem[] = [
 
 export const EMPLOYEE_NAV_ITEMS: SidebarNavItem[] = [
   { key: 'dashboard', labelKey: 'app.menu.dashboard', to: '/employee/dashboard' },
-  { key: 'timesheet', labelKey: 'app.menu.timesheet' },
+  { key: 'timesheet', labelKey: 'app.menu.timesheet', to: '/employee/timesheets' },
   { key: 'reports', labelKey: 'app.menu.myReports' },
   { key: 'profile', labelKey: 'app.menu.profile' },
 ]

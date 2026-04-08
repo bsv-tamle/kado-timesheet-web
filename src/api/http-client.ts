@@ -22,6 +22,7 @@ interface RequestOptions {
 
 const DEFAULT_API_BASE_URL = 'http://localhost:8080/api/v1'
 const API_BASE_URL = (import.meta.env.VITE_API_BASE_URL || DEFAULT_API_BASE_URL).replace(/\/$/, '')
+const AUTH_UNAUTHORIZED_EVENT = 'auth:unauthorized'
 
 export async function request<T>(path: string, options: RequestOptions = {}): Promise<T> {
   const { method = 'GET', body, query, headers = {}, token } = options
@@ -43,12 +44,18 @@ export async function request<T>(path: string, options: RequestOptions = {}): Pr
   const data = text ? JSON.parse(text) : null
 
   if (!response.ok) {
+    if (response.status === 401 && typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent(AUTH_UNAUTHORIZED_EVENT))
+    }
+
     const message = (data && typeof data === 'object' && 'message' in data && (data as { message?: string }).message) || 'Request failed'
     throw new ApiError(message || 'Request failed', response.status, data)
   }
 
   return data as T
 }
+
+export { AUTH_UNAUTHORIZED_EVENT }
 
 export function post<T>(path: string, body?: unknown, options: Omit<RequestOptions, 'method' | 'body'> = {}) {
   return request<T>(path, { ...options, method: 'POST', body })

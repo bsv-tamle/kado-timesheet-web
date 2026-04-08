@@ -7,6 +7,7 @@ import AdminProjectFormView from '../views/AdminProjectFormView.vue'
 import AdminEmployeeListView from '../views/AdminEmployeeListView.vue'
 import AdminEmployeeFormView from '../views/AdminEmployeeFormView.vue'
 import AdminAssignmentView from '../views/AdminAssignmentView.vue'
+import EmployeeTimesheetView from '../views/EmployeeTimesheetView.vue'
 import { authService, type UserRole } from '../services/auth.service'
 
 const router = createRouter({
@@ -82,6 +83,12 @@ const router = createRouter({
       path: '/employee/dashboard',
       name: 'employee-dashboard',
       component: EmployeeDashboardView,
+      meta: { requiresAuth: true, roles: ['employee'] },
+    },
+    {
+      path: '/employee/timesheets',
+      name: 'employee-timesheet',
+      component: EmployeeTimesheetView,
       meta: { requiresAuth: true, roles: ['employee'] },
     },
   ],

@@ -43,13 +43,14 @@ async function onSubmit() {
 
     const token = payload.data?.access_token
     const user = payload.data?.user
+    const expiresIn = payload.data?.expires_in
 
     if (!token || !user) {
       loginError.value = t('app.loginFailed')
       return
     }
 
-    authService.saveSession(token, user, rememberMe.value)
+    authService.saveSession(token, user, rememberMe.value, expiresIn)
     await router.push(authService.getHomePathByRole(user.role))
   } catch (error) {
     if (error instanceof ApiError) {

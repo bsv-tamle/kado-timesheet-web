@@ -227,9 +227,6 @@ onMounted(async () => {
             <button class="btn" type="button" @click="onRefresh" :disabled="!canOperate || isSubmitting">
               {{ t('app.assignment.refresh') }}
             </button>
-            <button class="btn primary" type="button" :disabled="!canOperate || isSubmitting" @click="onRefresh">
-              {{ t('app.assignment.saveChanges') }}
-            </button>
           </template>
         </AppPageHeader>
 

@@ -1,10 +1,12 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
+import { useRouter } from 'vue-router'
 import AppSidebar from '../components/AppSidebar.vue'
 import AppPageHeader from '../components/AppPageHeader.vue'
 import { EMPLOYEE_NAV_ITEMS } from '../constants/navigation'
 
 const { t } = useI18n()
+const router = useRouter()
 </script>
 
 <template>
@@ -18,7 +20,9 @@ const { t } = useI18n()
           :subtitle="t('app.employeeDashboard.subtitle')"
         >
           <template #actions>
-            <button class="btn primary">{{ t('app.employeeDashboard.enterTimesheet') }}</button>
+            <button class="btn primary" @click="router.push('/employee/timesheets')">
+              {{ t('app.employeeDashboard.enterTimesheet') }}
+            </button>
           </template>
         </AppPageHeader>
 
