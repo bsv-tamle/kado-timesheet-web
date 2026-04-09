@@ -33,6 +33,8 @@ const isEditMode = ref(false)
 const editingEntryId = ref<number | null>(null)
 const formWorkDate = ref(formatDate(new Date()))
 const formDetails = ref<Array<{ project_id: number | null; hours_worked: string; note: string }>>([])
+const monthInputRef = ref<HTMLInputElement | null>(null)
+const workDateInputRef = ref<HTMLInputElement | null>(null)
 
 const canSubmitForm = computed(() => formDetails.value.length > 0)
 
@@ -45,6 +47,10 @@ function formatDate(date: Date) {
 
 function formatMonth(date: Date) {
   return formatDate(date).slice(0, 7)
+}
+
+function openNativePicker(input: HTMLInputElement | null) {
+  input?.showPicker?.()
 }
 
 function openCreateForm() {
@@ -83,6 +89,48 @@ function addDetailRow() {
 
 function removeDetailRow(index: number) {
   formDetails.value.splice(index, 1)
+}
+
+function toCircledIndex(index: number) {
+  const map = ['①', '②', '③', '④', '⑤', '⑥', '⑦', '⑧', '⑨', '⑩', '⑪', '⑫', '⑬', '⑭', '⑮', '⑯', '⑰', '⑱', '⑲', '⑳']
+  return map[index] ?? `${index + 1}.`
+}
+
+function buildDailyRuleReport(entry: TimesheetEntry) {
+  const grouped = new Map<string, Array<{ task: string; hours: number }>>()
+
+  for (const detail of entry.details) {
+    const projectName = detail.project_name
+    const task = (detail.note || '').trim() || detail.project_code
+
+    if (!grouped.has(projectName)) {
+      grouped.set(projectName, [])
+    }
+    grouped.get(projectName)?.push({
+      task,
+      hours: detail.hours_worked,
+    })
+  }
+
+  const lines: string[] = []
+  Array.from(grouped.entries()).forEach(([projectName, tasks], index) => {
+    lines.push(`${toCircledIndex(index)}${projectName}`)
+    tasks.forEach((task) => {
+      lines.push(`・${task.task}：${task.hours}h`)
+    })
+  })
+
+  return lines.join('\n')
+}
+
+async function copyDailyReport(entry: TimesheetEntry) {
+  try {
+    const text = buildDailyRuleReport(entry)
+    await navigator.clipboard.writeText(text)
+    successMessage.value = t('app.timesheet.messages.copiedReport')
+  } catch {
+    errorMessage.value = t('app.timesheet.errors.copyReportFailed')
+  }
 }
 
 function projectItemsForRow(index: number) {
@@ -258,7 +306,15 @@ onMounted(() => {
       <main class="main">
         <AppPageHeader :title="t('app.timesheet.title')" :subtitle="t('app.timesheet.subtitle')">
           <template #actions>
-            <input v-model="selectedMonth" type="month" class="month-input" @change="fetchTimesheets" />
+            <input
+              ref="monthInputRef"
+              v-model="selectedMonth"
+              type="month"
+              class="month-input"
+              @change="fetchTimesheets"
+              @click="openNativePicker(monthInputRef)"
+              @focus="openNativePicker(monthInputRef)"
+            />
             <button class="btn" type="button" :disabled="isLoading" @click="fetchTimesheets">
               {{ t('app.timesheet.refresh') }}
             </button>
@@ -295,6 +351,9 @@ onMounted(() => {
                   <div class="entry-actions">
                     <button class="btn" type="button" @click="openEditForm(entry)">
                       {{ t('app.common.edit') }}
+                    </button>
+                    <button class="btn" type="button" @click="copyDailyReport(entry)">
+                      {{ t('app.timesheet.copyReport') }}
                     </button>
                   </div>
                 </div>
@@ -338,14 +397,14 @@ onMounted(() => {
               {{ isEditMode ? t('app.timesheet.editEntry') : t('app.timesheet.createEntry') }}
             </div>
             <div class="card-body">
-              <v-text-field
+              <label class="date-field-label">{{ t('app.timesheet.form.workDate') }}</label>
+              <input
+                ref="workDateInputRef"
                 v-model="formWorkDate"
                 type="date"
-                :label="t('app.timesheet.form.workDate')"
-                variant="outlined"
-                density="comfortable"
-                hide-details
-                class="mb-4"
+                class="date-input mb-4"
+                @click="openNativePicker(workDateInputRef)"
+                @focus="openNativePicker(workDateInputRef)"
               />
 
               <div class="detail-rows">
@@ -422,6 +481,32 @@ onMounted(() => {
   padding: 7px 10px;
   height: 38px;
   line-height: 1.2;
+  cursor: pointer;
+}
+
+.date-field-label {
+  display: block;
+  margin-bottom: 6px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.date-input {
+  width: 100%;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #fff;
+  color: #111827;
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.month-input:hover,
+.month-input:focus,
+.date-input:hover,
+.date-input:focus {
+  cursor: pointer;
 }
 
 .card {
