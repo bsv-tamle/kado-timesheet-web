@@ -9,12 +9,14 @@ import { authService } from '../services/auth.service'
 import { assignmentService, type AssignedProject } from '../services/assignment.service'
 import { projectService, type Project } from '../services/project.service'
 import { userService, type AdminUser } from '../services/user.service'
+import AppPageAlerts from '../components/AppPageAlerts.vue'
+import { useFlashMessages } from '../composables/useFlashMessages'
 
 const { t } = useI18n()
 
 const employees = ref<AdminUser[]>([])
 const selectedEmployeeId = ref<number | null>(null)
-const employeeKeyword = ref('')
+const employeeSearchQuery = ref('')
 const employeePage = ref(1)
 const employeeLastPage = ref(1)
 const isLoadingEmployee = ref(false)
@@ -29,18 +31,30 @@ const projectLastPage = ref(1)
 const isLoadingAvailableProjects = ref(false)
 
 const isSubmitting = ref(false)
-const errorMessage = ref('')
-const infoMessage = ref('')
+const { errorMessage, successMessage } = useFlashMessages()
 
 const canOperate = computed(() => selectedEmployeeId.value !== null)
 const canLoadMoreEmployees = computed(() => employeePage.value < employeeLastPage.value)
 const canLoadMoreProjects = computed(() => projectPage.value < projectLastPage.value)
 
+const employeeOptions = computed(() =>
+  employees.value.map((item) => ({
+    title: employeeOptionLabel(item),
+    value: item.id,
+  })),
+)
+
+function employeeOptionLabel(user: AdminUser) {
+  return `${user.full_name} (${user.email})`
+}
+
 let employeeSearchTimer: ReturnType<typeof setTimeout> | null = null
+let employeeFetchRequestId = 0
 
 async function fetchEmployees(reset = false) {
   const session = authService.getSession()
   if (!session?.token) return
+  const requestId = ++employeeFetchRequestId
 
   try {
     isLoadingEmployee.value = true
@@ -49,20 +63,20 @@ async function fetchEmployees(reset = false) {
     const nextPage = reset ? 1 : employeePage.value + 1
     const response = await userService.list(session.token, {
       status: 'active',
-      keyword: employeeKeyword.value.trim() || undefined,
+      keyword: employeeSearchQuery.value.trim() || undefined,
       page: nextPage,
       per_page: 100,
     })
 
     const chunk = response.data.data.filter((user) => user.role === 'employee')
 
+    if (requestId !== employeeFetchRequestId) {
+      return
+    }
+
     employees.value = reset ? chunk : [...employees.value, ...chunk]
     employeePage.value = response.data.current_page
     employeeLastPage.value = response.data.last_page
-
-    if (!selectedEmployeeId.value && employees.value.length > 0) {
-      selectedEmployeeId.value = employees.value[0].id
-    }
   } catch (error) {
     if (error instanceof ApiError) {
       errorMessage.value = error.message
@@ -70,17 +84,24 @@ async function fetchEmployees(reset = false) {
     }
     errorMessage.value = t('app.assignment.errors.loadEmployeeFailed')
   } finally {
-    isLoadingEmployee.value = false
+    if (requestId === employeeFetchRequestId) {
+      isLoadingEmployee.value = false
+    }
   }
 }
 
 function onEmployeeSearchInput(value: string) {
-  employeeKeyword.value = value
+  employeeSearchQuery.value = value
+
+  const selected = employees.value.find((item) => item.id === selectedEmployeeId.value)
+  if (selected && value === employeeOptionLabel(selected)) {
+    return
+  }
+
   if (employeeSearchTimer) clearTimeout(employeeSearchTimer)
   employeeSearchTimer = setTimeout(() => {
-    selectedEmployeeId.value = null
-    fetchEmployees(true)
-  }, 250)
+    void fetchEmployees(true)
+  }, 300)
 }
 
 async function fetchAvailableProjects(reset = false) {
@@ -141,7 +162,16 @@ async function loadAssignments() {
   }
 }
 
-watch(selectedEmployeeId, async () => {
+watch(selectedEmployeeId, async (employeeId) => {
+  if (employeeId === null) {
+    employeeSearchQuery.value = ''
+    if (employeeSearchTimer) {
+      clearTimeout(employeeSearchTimer)
+      employeeSearchTimer = null
+    }
+    await fetchEmployees(true)
+  }
+
   await loadAssignments()
   await fetchAvailableProjects(true)
 })
@@ -154,7 +184,7 @@ async function onAssign(project: Project) {
   try {
     isSubmitting.value = true
     errorMessage.value = ''
-    infoMessage.value = ''
+    successMessage.value = ''
 
     const response = await assignmentService.assign(session.token, {
       employee_id: employeeId,
@@ -163,7 +193,7 @@ async function onAssign(project: Project) {
 
     await loadAssignments()
     await fetchAvailableProjects(true)
-    infoMessage.value = t('app.assignment.messages.assigned', { count: response.data.assigned_count })
+    successMessage.value = t('app.assignment.messages.assigned', { count: response.data.assigned_count })
   } catch (error) {
     if (error instanceof ApiError) {
       errorMessage.value = error.message
@@ -183,7 +213,7 @@ async function onUnassign(project: AssignedProject) {
   try {
     isSubmitting.value = true
     errorMessage.value = ''
-    infoMessage.value = ''
+    successMessage.value = ''
 
     const response = await assignmentService.unassign(session.token, {
       employee_id: employeeId,
@@ -192,7 +222,7 @@ async function onUnassign(project: AssignedProject) {
 
     await loadAssignments()
     await fetchAvailableProjects(true)
-    infoMessage.value = t('app.assignment.messages.unassigned', { count: response.data.unassigned_count })
+    successMessage.value = t('app.assignment.messages.unassigned', { count: response.data.unassigned_count })
   } catch (error) {
     if (error instanceof ApiError) {
       errorMessage.value = error.message
@@ -211,6 +241,11 @@ async function onRefresh() {
 
 onMounted(async () => {
   await fetchEmployees(true)
+  if (employees.value.length > 0) {
+    selectedEmployeeId.value = employees.value[0].id
+    return
+  }
+
   await loadAssignments()
   await fetchAvailableProjects(true)
 })
@@ -230,12 +265,7 @@ onMounted(async () => {
           </template>
         </AppPageHeader>
 
-        <v-alert v-if="errorMessage" type="error" variant="tonal" density="comfortable" class="mb-4">
-          {{ errorMessage }}
-        </v-alert>
-        <v-alert v-if="infoMessage" type="success" variant="tonal" density="comfortable" class="mb-4">
-          {{ infoMessage }}
-        </v-alert>
+        <AppPageAlerts :error="errorMessage" :success="successMessage" />
 
         <div class="split">
           <div class="card">
@@ -244,13 +274,14 @@ onMounted(async () => {
               <v-autocomplete
                 v-model="selectedEmployeeId"
                 :label="t('app.assignment.employee')"
-                :items="employees.map((item) => ({ title: `${item.full_name} (${item.email})`, value: item.id }))"
-                v-model:search="employeeKeyword"
+                :items="employeeOptions"
+                v-model:search="employeeSearchQuery"
                 @update:search="onEmployeeSearchInput"
                 variant="outlined"
                 density="comfortable"
                 hide-details
                 :loading="isLoadingEmployee"
+                :auto-select-first="false"
                 no-filter
                 clearable
               />

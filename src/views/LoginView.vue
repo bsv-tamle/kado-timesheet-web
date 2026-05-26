@@ -4,6 +4,8 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { ApiError } from '../api/http-client'
 import { authService } from '../services/auth.service'
+import AppPageAlerts from '../components/AppPageAlerts.vue'
+import { useAutoDismissMessage } from '../composables/useAutoDismissMessage'
 
 const { t, locale } = useI18n()
 const router = useRouter()
@@ -14,6 +16,7 @@ const password = ref('')
 const rememberMe = ref(true)
 const isSubmitting = ref(false)
 const loginError = ref('')
+useAutoDismissMessage(loginError)
 
 const emailRules = computed(() => [
   (value: string) => !!value || t('app.required'),
@@ -75,14 +78,7 @@ async function onSubmit() {
 
           <v-form ref="formRef" @submit.prevent="onSubmit">
             <div class="stack">
-              <v-alert
-                v-if="loginError"
-                type="error"
-                variant="tonal"
-                density="comfortable"
-              >
-                {{ loginError }}
-              </v-alert>
+              <AppPageAlerts :error="loginError" />
 
               <div>
                 <label class="field-label">{{ t('app.email') }}</label>

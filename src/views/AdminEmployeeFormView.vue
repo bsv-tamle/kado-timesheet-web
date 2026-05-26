@@ -8,6 +8,8 @@ import { ApiError } from '../api/http-client'
 import { ADMIN_NAV_ITEMS } from '../constants/navigation'
 import { authService } from '../services/auth.service'
 import { userService, type UserStatus } from '../services/user.service'
+import AppPageAlerts from '../components/AppPageAlerts.vue'
+import { useFlashMessages } from '../composables/useFlashMessages'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -16,7 +18,7 @@ const router = useRouter()
 const formRef = ref()
 const isSubmitting = ref(false)
 const isLoadingDetail = ref(false)
-const errorMessage = ref('')
+const { errorMessage } = useFlashMessages()
 
 const userId = computed(() => Number(route.params.id || 0))
 const isEditMode = computed(() => Number.isFinite(userId.value) && userId.value > 0)
@@ -158,9 +160,7 @@ onMounted(() => {
           </template>
         </AppPageHeader>
 
-        <v-alert v-if="errorMessage" type="error" variant="tonal" density="comfortable" class="mb-4">
-          {{ errorMessage }}
-        </v-alert>
+        <AppPageAlerts :error="errorMessage" />
 
         <div class="card">
           <v-form ref="formRef" @submit.prevent="onSave">

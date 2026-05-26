@@ -8,6 +8,8 @@ import { ApiError } from '../api/http-client'
 import { ADMIN_NAV_ITEMS } from '../constants/navigation'
 import { authService } from '../services/auth.service'
 import { userService, type AdminUser, type UserStatus } from '../services/user.service'
+import AppPageAlerts from '../components/AppPageAlerts.vue'
+import { useFlashMessages } from '../composables/useFlashMessages'
 
 const { t } = useI18n()
 const route = useRoute()
@@ -22,8 +24,7 @@ const perPage = ref(10)
 const total = ref(0)
 const isLoading = ref(false)
 const actionLoadingUserId = ref<number | null>(null)
-const errorMessage = ref('')
-const successMessage = ref('')
+const { errorMessage, successMessage } = useFlashMessages()
 
 const totalPages = computed(() => Math.max(1, Math.ceil(total.value / perPage.value)))
 
@@ -188,12 +189,7 @@ onMounted(() => {
           </template>
         </AppPageHeader>
 
-        <v-alert v-if="errorMessage" type="error" variant="tonal" density="comfortable" class="mb-4">
-          {{ errorMessage }}
-        </v-alert>
-        <v-alert v-if="successMessage" type="success" variant="tonal" density="comfortable" class="mb-4">
-          {{ successMessage }}
-        </v-alert>
+        <AppPageAlerts :error="errorMessage" :success="successMessage" />
 
         <div class="card mb-4">
           <div class="filters">

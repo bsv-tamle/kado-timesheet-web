@@ -13,6 +13,8 @@ import {
   type SaveTimesheetDetailInput,
   type TimesheetEntry,
 } from '../services/timesheet.service'
+import AppPageAlerts from '../components/AppPageAlerts.vue'
+import { useFlashMessages } from '../composables/useFlashMessages'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -25,8 +27,7 @@ const myProjects = ref<MyProject[]>([])
 const isLoading = ref(false)
 const isLoadingProjects = ref(false)
 const isSubmitting = ref(false)
-const errorMessage = ref('')
-const successMessage = ref('')
+const { errorMessage, successMessage } = useFlashMessages()
 
 const isFormOpen = ref(false)
 const isEditMode = ref(false)
@@ -324,12 +325,7 @@ onMounted(() => {
           </template>
         </AppPageHeader>
 
-        <v-alert v-if="errorMessage" type="error" variant="tonal" density="comfortable" class="mb-4">
-          {{ errorMessage }}
-        </v-alert>
-        <v-alert v-if="successMessage" type="success" variant="tonal" density="comfortable" class="mb-4">
-          {{ successMessage }}
-        </v-alert>
+        <AppPageAlerts :error="errorMessage" :success="successMessage" />
 
         <div class="card summary-card mb-4">
           <div class="summary-title">{{ t('app.timesheet.summaryTitle') }}</div>
